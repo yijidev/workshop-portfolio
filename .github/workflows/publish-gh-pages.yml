@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'src/MyPortfolio/**'
+      - 'workshop/MyPortfolio/**' #여기를 돌려라
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: write
   pages: write
   id-token: write
+  #깃헙 액션을 돌리기위한 권한
 
 # Allow one concurrent deployment
 concurrency:
@@ -22,16 +23,19 @@ jobs:
     name: Build App
 
     runs-on: ubuntu-latest
+    #빌드서버
+
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    #코드 다운
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-
+    #닷넷 버전 설정
     - name: Set basepath on index.html
       shell: pwsh
       run: |
@@ -55,32 +59,34 @@ jobs:
     - name: Restore NuGet packages
       shell: bash
       run: |
-        dotnet restore ./src
+      dotnet restore ./workshop
 
     - name: Build solution
       shell: bash
       run: |
-        dotnet build ./src -c Release
+      dotnet build ./workshop -c Release
 
     - name: Test solution
       shell: bash
       run: |
-        dotnet test ./src -c Release
+      dotnet test ./workshop -c Release
 
     - name: Publish artifact
       shell: bash
       run: |
-        dotnet publish ./src/MyPortfolio -c Release -o published
+      dotnet publish ./workshop/MyPortfolio -c Release -o published
 
     - name: Upload artifact for web
       uses: actions/upload-pages-artifact@v1
       with:
         path: published/wwwroot
 
+#앱배포
   deploy:
     name: Deploy App to GitHub Pages
     needs:
     - build_test_artifact
+    #의존성
 
     runs-on: ubuntu-latest
 
@@ -92,3 +98,5 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v1
+
+      
